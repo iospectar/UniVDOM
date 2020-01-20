@@ -7,14 +7,7 @@ public class Sample : MonoBehaviour
     // Start is called before the first frame update
     void Start()
     {
-        VGameObject vGameObject = VirtualDom.CreateGameObject("parent",
-                VirtualDom.List(
-                    VirtualDom.CreateComponent(typeof(Rigidbody), new KeyValuePair<string, object>("mass", 2.5f))
-                ),
-            VirtualDom.CreateGameObject("Child1"),
-            VirtualDom.CreateGameObject("Child2")
-       );
-
+        VGameObject vGameObject = Render();
         GameObject go = RenderVirtualDom.Render(vGameObject);
     }
 
@@ -22,5 +15,21 @@ public class Sample : MonoBehaviour
     void Update()
     {
         
+    }
+
+    VGameObject Render()
+    {
+        VGameObject vGameObject = VirtualDom.CreateGameObject("parent",
+            VirtualDom.List(
+                VirtualDom.CreateComponent<TextMesh>(new KeyValuePair<string, object>("text", "Hello world"))
+            ),
+            VirtualDom.CreateGameObject("Child1",
+                VirtualDom.List(
+                    VirtualDom.CreateComponent<Transform>(new KeyValuePair<string, object>("position", new Vector3(1, 2, 3)))
+                )
+            ),
+            VirtualDom.CreateGameObject("Child2")
+        );
+        return vGameObject;
     }
 }

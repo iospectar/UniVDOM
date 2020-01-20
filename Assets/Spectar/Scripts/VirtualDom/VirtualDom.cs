@@ -45,6 +45,16 @@ public class VirtualDom
         };
     }
 
+
+    public static VComponent CreateComponent<T>(params KeyValuePair<string, object>[] fields)
+    {
+        return new VComponent
+        {
+            type = typeof(T),
+            fields = fields,
+        };
+    }
+
     public static VComponent CreateComponent(Type type, params KeyValuePair<string, object>[] fields)
     {
         return new VComponent

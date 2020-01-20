@@ -27,7 +27,12 @@ public class RenderVirtualDom
 
     public static Component RenderComponent(GameObject go, VComponent vComponent)
     {
-        Component component = go.AddComponent(vComponent.type);
+        Component component = go.GetComponent(vComponent.type);
+        if (component == null)
+        {
+            component = go.AddComponent(vComponent.type);
+        }
+
         foreach(KeyValuePair<string, object> field in vComponent.fields)
         {
             PropertyInfo myPropInfo = vComponent.type.GetProperty(field.Key);
