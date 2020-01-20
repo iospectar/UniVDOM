@@ -4,10 +4,10 @@ using System.Collections.Generic;
 using System.Reflection;
 using UnityEngine;
 
-public class RenderVirtualDom
+public class VRender
 {
 
-    public static GameObject Render(VGameObject vGameObject)
+    public static GameObject RenderGameObject(VGameObject vGameObject)
     {
         GameObject go = new GameObject(vGameObject.name);
 
@@ -18,7 +18,7 @@ public class RenderVirtualDom
 
         foreach (VGameObject vChild in vGameObject.children)
         {
-            GameObject child = Render(vChild);
+            GameObject child = RenderGameObject(vChild);
             child.transform.SetParent(go.transform);
         }
         
@@ -33,11 +33,22 @@ public class RenderVirtualDom
             component = go.AddComponent(vComponent.type);
         }
 
-        foreach(KeyValuePair<string, object> field in vComponent.fields)
+        
+        return RenderFields(component, vComponent);
+    }
+
+    public static Component RenderFields(Component component, VComponent vComponent)
+    {
+        foreach (KeyValuePair<string, object> field in vComponent.fields)
         {
-            PropertyInfo myPropInfo = vComponent.type.GetProperty(field.Key);
-            myPropInfo.SetValue(component, field.Value, null);
+            SetComponentField(vComponent, component, field);
         }
         return component;
+    }
+
+    public static void SetComponentField(VComponent vComponent, Component component, KeyValuePair<string, object> field)
+    {
+        PropertyInfo myPropInfo = vComponent.type.GetProperty(field.Key);
+        myPropInfo.SetValue(component, field.Value, null);
     }
 }
