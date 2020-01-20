@@ -27,6 +27,53 @@ public class VDiff
         return patch;
     }
 
+    private static GameObjectPatch DiffChildren(VGameObject[] vOldChildren, VGameObject[] vNewChildren)
+    {
+        List<GameObjectPatch> patches = new List<GameObjectPatch>();
+        for(int i=0; i<vOldChildren.Length; i++)
+        {
+            VGameObject? newChild = null;
+            if (i<vNewChildren.Length)
+            {
+                newChild = vNewChildren[i];
+            }
+            patches.Add(Diff(vOldChildren[i], newChild));
+        }
+
+        List<GameObjectPatch> additionalPatches = new List<GameObjectPatch>();
+        if (vNewChildren.Length > vOldChildren.Length)
+        {
+            for (int i = vOldChildren.Length; i < vNewChildren.Length; i++)
+            {
+                VGameObject newChild = vNewChildren[i];
+                GameObjectPatch newChildPatch = (GameObject go) =>
+                {
+                    GameObject newGo = VRender.RenderGameObject(newChild);
+                    newGo.transform.SetParent(go.transform);
+                    return newGo;
+                };
+                additionalPatches.Add(newChildPatch);
+            }
+        }
+
+        GameObjectPatch completePatch = (GameObject go) =>
+        {
+            for(int i=0; i<patches.Count; i++)
+            {
+                GameObject child = go.transform.GetChild(i).gameObject;
+                patches[i](child);
+            }
+
+            foreach(GameObjectPatch patch in additionalPatches)
+            {
+                patch(go);
+            }
+            return go;
+        };
+
+        return completePatch;
+    }
+
     private static GameObjectPatch DiffComponents(VComponent[] vOldComponents, VComponent[] vNewComponents)
     {
         GameObjectPatch patch = (GameObject go) =>
@@ -147,6 +194,8 @@ public class VDiff
         {
             GameObjectPatch componentPatch = DiffComponents(vOldGO.components, vNotNullGO.components);
             componentPatch(go);
+            GameObjectPatch childPatch = DiffChildren(vOldGO.children, vNotNullGO.children);
+            childPatch(go);
             return go;
         };
         return patch;
