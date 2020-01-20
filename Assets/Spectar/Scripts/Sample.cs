@@ -10,30 +10,26 @@ public class Sample : MonoBehaviour
     // Start is called before the first frame update
     void Start()
     {
-        vApp = Render("hello world");
+        vApp = Render("hello world", Random.insideUnitSphere);
         go = VRender.RenderGameObject(vApp);
-        //InvokeRepeating("UpdateRender", 0, 4);
-    }
-
-    private void Update()
-    {
-        UpdateRender();
+        InvokeRepeating("UpdateRender", 0, 2);
     }
 
     // Update is called once per frame
     void UpdateRender()
     {
-        VGameObject newApp = Render("hello world " + count);
+        VGameObject newApp = Render("hello world " + count, Random.insideUnitSphere);
         GameObjectPatch patch = VDiff.Diff(vApp, newApp);
         go = patch(go);
         vApp = newApp;
         count += 1;
     }
 
-    VGameObject Render(string text)
+    VGameObject Render(string text, Vector3 pos)
     {
-        VGameObject vGameObject = VirtualDom.CreateGameObject("parent",
+        VGameObject vGameObject = VirtualDom.CreateGameObject("World",
             VirtualDom.List(
+                VirtualDom.CreateComponent<Transform>(new KeyValuePair<string, object>("position", pos)),
                 VirtualDom.CreateComponent<TextMesh>(new KeyValuePair<string, object>("text", text))
             ),
             VirtualDom.CreateGameObject("Child1",
