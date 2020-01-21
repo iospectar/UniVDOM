@@ -1,7 +1,8 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
-
+using System;
+using UniRx;
 
 public delegate GameObject GameObjectPatch(GameObject go);
 public delegate Component ComponentPatch(GameObject co);
@@ -199,5 +200,13 @@ public class VDiff
             return go;
         };
         return patch;
+    }
+
+    public static IObservable<GameObjectPatch> DiffThreaded(VGameObject vOldGO, VGameObject? vNewGO)
+    {
+        return Observable.Start(() =>
+        {
+            return Diff(vOldGO, vNewGO);
+        });
     }
 }

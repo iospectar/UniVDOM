@@ -1,7 +1,9 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
+using System;
 using System.Linq;
 using UnityEngine;
+using UniRx;
 
 public class Sample : MonoBehaviour
 {
@@ -11,9 +13,9 @@ public class Sample : MonoBehaviour
     // Start is called before the first frame update
     void Start()
     {
-        vApp = Render(0, Random.insideUnitSphere);
+        vApp = Render(0, UnityEngine.Random.insideUnitSphere);
         go = VRender.RenderGameObject(vApp);
-        InvokeRepeating("UpdateRender", 0, 1f);
+        InvokeRepeating("UpdateRenderThreaded", 0, 1f);
     }
 
     private void Update()
@@ -21,15 +23,30 @@ public class Sample : MonoBehaviour
         //UpdateRender();
     }
 
-    // Update is called once per frame
+    void UpdateRenderThreaded()
+    {
+        VGameObject newApp = Render(count, UnityEngine.Random.insideUnitSphere);
+        IObservable<GameObjectPatch> result = VDiff.DiffThreaded(vApp, newApp);
+        Observable.WhenAll(result)
+            .ObserveOnMainThread()
+            .Subscribe(patch =>
+            {
+                go = patch[0](go);
+                vApp = newApp;
+                count += 1;
+            })
+            .AddTo(this);
+    }
+
     void UpdateRender()
     {
-        VGameObject newApp = Render(count, Random.insideUnitSphere);
+        VGameObject newApp = Render(count, UnityEngine.Random.insideUnitSphere);
         GameObjectPatch patch = VDiff.Diff(vApp, newApp);
         go = patch(go);
         vApp = newApp;
         count += 1;
     }
+
 
     VGameObject Render(int count, Vector3 pos)
     {
