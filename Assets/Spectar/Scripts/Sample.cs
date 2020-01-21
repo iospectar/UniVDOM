@@ -1,18 +1,19 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
 using UnityEngine;
 
 public class Sample : MonoBehaviour
 {
     VGameObject vApp;
     GameObject go;
-    int count = 0;
+    int count = 200;
     // Start is called before the first frame update
     void Start()
     {
         vApp = Render(0, Random.insideUnitSphere);
         go = VRender.RenderGameObject(vApp);
-        InvokeRepeating("UpdateRender", 0, 1);
+        InvokeRepeating("UpdateRender", 0, 1f);
     }
 
     private void Update()
@@ -42,30 +43,17 @@ public class Sample : MonoBehaviour
                     VirtualDom.CreateComponent<Transform>(new KeyValuePair<string, object>("position", pos))
                 )
             ),
-            VirtualDom.CreateGameObject("Child2", RenderList(count))
+            VirtualDom.CreateGameObject("List", Enumerable.Range(0, count).Select(
+                row =>
+                {
+                    return VirtualDom.CreateGameObject("item",
+                        VirtualDom.List(
+                            VirtualDom.CreateComponent<Transform>(new KeyValuePair<string, object>("position", new Vector3(0, row, 0))),
+                            VirtualDom.CreateComponent<TextMesh>(new KeyValuePair<string, object>("text", "hello world " + row))
+                    ));
+                }
+            ))
         );
-        return vGameObject;
-    }
-
-    VGameObject[] RenderList(int length)
-    {
-        List<VGameObject> itemList = new List<VGameObject>();
-        for (int i=0; i<length; i++)
-        {
-            Vector3 pos = new Vector3();
-            pos.y = i;
-            itemList.Add(RenderItem("item", pos, "Item " + i));
-        }
-        return itemList.ToArray();
-    }
-
-    VGameObject RenderItem(string name, Vector3 position, string text)
-    {
-        VGameObject vGameObject = VirtualDom.CreateGameObject(name,
-            VirtualDom.List(
-                VirtualDom.CreateComponent<Transform>(new KeyValuePair<string, object>("position", position)),
-                VirtualDom.CreateComponent<TextMesh>(new KeyValuePair<string, object>("text", text))
-        ));
         return vGameObject;
     }
 }

@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
 using UnityEngine;
 
 public class VirtualDom
@@ -24,6 +25,17 @@ public class VirtualDom
             children = children,
         };
     }
+
+    public static VGameObject CreateGameObject(string name, IEnumerable<VGameObject> children)
+    {
+        return new VGameObject
+        {
+            name = name,
+            components = new VComponent[] { },
+            children = children.ToArray(),
+        };
+    }
+
 
     public static VGameObject CreateGameObject(string name, VComponent[] components)
     {
