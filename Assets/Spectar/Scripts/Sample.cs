@@ -70,14 +70,17 @@ public class Sample : MonoBehaviour
 
     VGameObject Render(List<TodoItem> todos)
     {
-        var newApp = vApp;
-        VGameObject[] children = (VGameObject[]) vApp.children.Clone();
-        VComponent[] newComponents = (VComponent[]) children[0].components.Clone();
-        KeyValuePair<string, object>[] fields = (KeyValuePair<string, object>[]) newComponents[1].fields.Clone();
-        fields[0] = new KeyValuePair<string, object>("text", todos.Count().ToString());
-        newComponents[1].fields = fields;
-        children[0].components = newComponents;
-        newApp.children = children;
+        var newApp = vApp.Clone();
+
+        newApp
+            .Descendants()
+            .Where(go => go.name == "TodoItem")
+            .First()
+            .Components()
+            .Where(co => co.IsType<TodoItemPresenter>())
+            .First()
+            .SetValue("text", todos.Count().ToString());
+
         return newApp;
     }
 

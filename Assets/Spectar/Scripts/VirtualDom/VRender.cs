@@ -49,6 +49,10 @@ public class VRender
     {
         foreach (KeyValuePair<string, object> field in vComponent.fields)
         {
+            if (field.Key.ToLower() == "material")
+            {
+                Debug.Log("Material");
+            }
             SetComponentField(vComponent, component, field);
         }
         return component;

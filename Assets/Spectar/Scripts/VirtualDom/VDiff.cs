@@ -42,7 +42,7 @@ public class VDiff
         List<GameObjectPatch> patches = new List<GameObjectPatch>();
         for(int i=0; i<vOldChildren.Length; i++)
         {
-            VGameObject? newChild = null;
+            VGameObject newChild = null;
             if (i<vNewChildren.Length)
             {
                 newChild = vNewChildren[i];
@@ -127,30 +127,30 @@ public class VDiff
         return patch;
     }
 
-    private static ComponentPatch DiffComponent(VComponent? vOldComponent, VComponent? vNewComponent)
+    private static ComponentPatch DiffComponent(VComponent vOldComponent, VComponent vNewComponent)
     {
         ComponentPatch patch = (GameObject go) =>
         {
-            FieldsPatch fieldPatch = DiffFields(vOldComponent.Value, vNewComponent.Value);
-            Component co = go.GetComponent(vOldComponent.Value.type);
+            FieldsPatch fieldPatch = DiffFields(vOldComponent, vNewComponent);
+            Component co = go.GetComponent(vOldComponent.type);
             fieldPatch(co);
             return co;
         };
 
         // If there is no new component then we're gonna delete it
-        if (!vNewComponent.HasValue && vOldComponent.HasValue)
+        if (vNewComponent != null && vOldComponent != null)
         {
             patch = (GameObject go) =>
             {
-                Component co = go.GetComponent(vOldComponent.Value.type);
+                Component co = go.GetComponent(vOldComponent.type);
                 GameObject.Destroy(co);
                 return null;
             };
         }
 
         // If there's a new one, but no old one, we're adding a new one
-        VComponent vNotNullNewCO = vNewComponent.Value;
-        if (!vOldComponent.HasValue)
+        VComponent vNotNullNewCO = vNewComponent;
+        if (vOldComponent != null)
         {
             patch = (GameObject go) =>
             {
@@ -160,7 +160,7 @@ public class VDiff
 
         // If the components of different types, then we're gonna replace
         // the old with the new
-        VComponent vNotNullOldCO = vOldComponent.Value;
+        VComponent vNotNullOldCO = vOldComponent;
         if (!vNotNullOldCO.type.Equals(vNotNullNewCO.type))
         {
             patch = (GameObject go) =>
@@ -174,12 +174,12 @@ public class VDiff
         return patch;
     }
 
-    public static GameObjectPatch Diff(VGameObject vOldGO, VGameObject? vNewGO)
+    public static GameObjectPatch Diff(VGameObject vOldGO, VGameObject vNewGO)
     {
         GameObjectPatch patch = (GameObject go) => null;
 
         // GameObject has been deleted
-        if (!vNewGO.HasValue)
+        if (vNewGO != null)
         {
             patch = (GameObject go) => {
                 GameObject.Destroy(go);
@@ -187,7 +187,7 @@ public class VDiff
             };
         }
 
-        VGameObject vNotNullGO = vNewGO.Value;
+        VGameObject vNotNullGO = vNewGO;
 
         patch = (GameObject go) =>
         {
@@ -205,7 +205,7 @@ public class VDiff
         return patch;
     }
 
-    public static IObservable<GameObjectPatch> DiffThreaded(VGameObject vOldGO, VGameObject? vNewGO)
+    public static IObservable<GameObjectPatch> DiffThreaded(VGameObject vOldGO, VGameObject vNewGO)
     {
         return Observable.Start(() =>
         {

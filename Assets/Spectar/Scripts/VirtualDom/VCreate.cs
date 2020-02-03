@@ -9,7 +9,6 @@ public class VCreate
 {
     public static VGameObject CreateVirtualNodes(GameObject go)
     {
-        VGameObject vGameObject = new VGameObject();
 
         List<VGameObject> children = new List<VGameObject>();
 
@@ -20,9 +19,8 @@ public class VCreate
             children.Add(vChild);
         }
 
-        vGameObject.name = go.name;
-        vGameObject.children = children.ToArray();
-        vGameObject.components = CreateVirtualComponents(go);
+
+        VGameObject vGameObject = new VGameObject(go.name, CreateVirtualComponents(go), children.ToArray());
 
         return vGameObject;
     }
@@ -40,9 +38,7 @@ public class VCreate
 
     private static VComponent CreateVirtualComponent(Component co)
     {
-        VComponent vComponent = new VComponent();
-        vComponent.fields = GetFields(co);
-        vComponent.type = co.GetType();
+        VComponent vComponent = new VComponent(co.GetType(), GetFields(co));
         return vComponent;
     }
 

@@ -9,102 +9,101 @@ public class VirtualDom
     public static VGameObject CreateGameObject(string name,  VComponent[] components, params VGameObject[] children)
     {
         return new VGameObject
-        {
-            name = name,
-            components = components,
-            children = children,
-        };
+        (
+            name,
+            components,
+            children
+        );
     }
 
     public static VGameObject CreateGameObject(string name, params VGameObject[] children)
     {
         return new VGameObject
-        {
-            name = name,
-            components = new VComponent[] { },
-            children = children,
-        };
+        (
+            name,
+            new VComponent[] { },
+            children
+        );
     }
 
     public static VGameObject CreateGameObject(string name, IEnumerable<VGameObject> children)
     {
-        return new VGameObject
-        {
-            name = name,
-            components = new VComponent[] { },
-            children = children.ToArray(),
-        };
+        return new VGameObject(
+            name,
+            new VComponent[0],
+            children.ToArray()
+        );
     }
 
     public static VGameObject CreatePrefab(string name, GameObject prefab)
     {
         return new VGameObject
-        {
-            name = name,
-            prefab = prefab,
-            components = new VComponent[] { },
-            children = new VGameObject[] { },
-        };
+        (
+            name,
+            prefab,
+            new VComponent[0],
+            new VGameObject[0]
+        );
     }
 
     public static VGameObject CreatePrefab(string name, GameObject prefab, VComponent[] components)
     {
         return new VGameObject
-        {
-            name = name,
-            prefab = prefab,
-            components = components,
-            children = new VGameObject[] { },
-        };
+        (
+            name,
+            prefab,
+            components,
+            new VGameObject[0]
+        );
     }
 
     public static VGameObject CreateGameObject(string name, VComponent[] components)
     {
         return new VGameObject
-        {
-            name = name,
-            components = components,
-            children = new VGameObject[] { },
-        };
+        (
+            name,
+            components,
+            new VGameObject[0]
+        );
     }
 
     public static VGameObject CreateGameObject(string name)
     {
         return new VGameObject
-        {
-            name = name,
-            components = new VComponent[] { },
-            children = new VGameObject[] { },
-        };
+        (
+            name,
+            new VComponent[0],
+            new VGameObject[0]
+        );
     }
 
 
     public static VComponent CreateComponent<T>(params KeyValuePair<string, object>[] fields)
     {
         return new VComponent
-        {
-            type = typeof(T),
-            fields = fields,
-        };
+        (
+            typeof(T),
+            fields
+        );
     }
 
     public static VComponent CreateComponent(Type type, params KeyValuePair<string, object>[] fields)
     {
         return new VComponent
-        {
-            type = type,
-            fields = fields,
-        };
+        (
+            type,
+            fields
+        );
     }
 
     public static VComponent CreateComponent(string type, params KeyValuePair<string, object>[] fields)
     {
         Type t = Type.GetType(type);
         return new VComponent
-        {
-            type = t,
-            fields = fields,
-        };
+        (
+            t,
+            fields
+        );
     }
 
 
