@@ -9,7 +9,15 @@ public class VRender
 
     public static GameObject RenderGameObject(VGameObject vGameObject)
     {
-        GameObject go = new GameObject(vGameObject.name);
+        GameObject go;
+        if (vGameObject.prefab == null)
+        {
+            go = new GameObject(vGameObject.name);
+        } else
+        {
+            go = GameObject.Instantiate(vGameObject.prefab);
+            go.name = vGameObject.name;
+        }
 
         foreach (VComponent vComponent in vGameObject.components)
         {
@@ -48,7 +56,14 @@ public class VRender
 
     public static void SetComponentField(VComponent vComponent, Component component, KeyValuePair<string, object> field)
     {
-        PropertyInfo myPropInfo = vComponent.type.GetProperty(field.Key);
-        myPropInfo.SetValue(component, field.Value, null);
+        FieldInfo fieldInfo = vComponent.type.GetField(field.Key);
+        if (fieldInfo == null)
+        {
+            PropertyInfo myPropInfo = vComponent.type.GetProperty(field.Key);
+            myPropInfo.SetValue(component, field.Value);
+        } else
+        {
+            fieldInfo.SetValue(component, field.Value);
+        }
     }
 }

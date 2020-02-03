@@ -18,7 +18,16 @@ public class VDiff
             for (int i = 0; i < vOldComponent.fields.Length; i++)
             {
                 KeyValuePair<string, object> field = vNewComponent.fields[i];
-                bool unchanged = vOldComponent.fields[i].Value.Equals(field.Value);
+                object currentValue = vOldComponent.fields[i].Value;
+                bool unchanged;
+                if (currentValue == null)
+                {
+                    unchanged = currentValue == field.Value;
+                } else
+                {
+                    unchanged = currentValue.Equals(field.Value);
+                }
+
                 if (!unchanged)
                 {
                     VRender.SetComponentField(vNewComponent, co, field);
@@ -179,20 +188,14 @@ public class VDiff
         }
 
         VGameObject vNotNullGO = vNewGO.Value;
-        if (vOldGO.name != vNotNullGO.name)
-        {
-            patch = (GameObject go) =>
-            {
-                Transform parent = go.transform.parent;
-                GameObject.Destroy(go);
-                GameObject newGo = VRender.RenderGameObject(vNotNullGO);
-                newGo.transform.SetParent(parent);
-                return newGo;
-            };
-        }
 
         patch = (GameObject go) =>
         {
+            if (vOldGO.name != vNotNullGO.name)
+            {
+                go.name = vNotNullGO.name;
+            }
+
             GameObjectPatch componentPatch = DiffComponents(vOldGO.components, vNotNullGO.components);
             componentPatch(go);
             GameObjectPatch childPatch = DiffChildren(vOldGO.children, vNotNullGO.children);

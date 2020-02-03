@@ -36,6 +36,27 @@ public class VirtualDom
         };
     }
 
+    public static VGameObject CreatePrefab(string name, GameObject prefab)
+    {
+        return new VGameObject
+        {
+            name = name,
+            prefab = prefab,
+            components = new VComponent[] { },
+            children = new VGameObject[] { },
+        };
+    }
+
+    public static VGameObject CreatePrefab(string name, GameObject prefab, VComponent[] components)
+    {
+        return new VGameObject
+        {
+            name = name,
+            prefab = prefab,
+            components = components,
+            children = new VGameObject[] { },
+        };
+    }
 
     public static VGameObject CreateGameObject(string name, VComponent[] components)
     {
