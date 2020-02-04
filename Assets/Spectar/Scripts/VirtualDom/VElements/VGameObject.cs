@@ -6,10 +6,10 @@ using System;
 
 public class VGameObject
 {
-    public readonly string name;
-    public readonly GameObject prefab;
-    public readonly VComponent[] components;
-    public readonly VGameObject[] children;
+    public string name;
+    public GameObject prefab;
+    public VComponent[] components;
+    public VGameObject[] children;
 
     public VGameObject(string name, GameObject prefab, VComponent[] components, VGameObject[] children)
     {

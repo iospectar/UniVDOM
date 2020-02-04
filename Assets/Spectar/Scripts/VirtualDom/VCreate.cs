@@ -7,31 +7,39 @@ using UnityEngine;
 
 public class VCreate
 {
-    public static VGameObject CreateVirtualNodes(GameObject go)
+    public static VGameObject CreateVirtualNodes(GameObject go, params Type[] types)
     {
-
         List<VGameObject> children = new List<VGameObject>();
 
         for (int i = 0; i < go.transform.childCount; i++)
         {
             Transform child = go.transform.GetChild(i);
-            VGameObject vChild = CreateVirtualNodes(child.gameObject);
+            VGameObject vChild = CreateVirtualNodes(child.gameObject, types);
             children.Add(vChild);
         }
 
 
-        VGameObject vGameObject = new VGameObject(go.name, CreateVirtualComponents(go), children.ToArray());
+        VGameObject vGameObject = new VGameObject(go.name, CreateVirtualComponents(go, types), children.ToArray());
 
         return vGameObject;
     }
 
-    private static VComponent[] CreateVirtualComponents(GameObject go)
+    private static VComponent[] CreateVirtualComponents(GameObject go, params Type[] types)
     {
         List<VComponent> vComponents = new List<VComponent>();
         Component[] components = go.GetComponents<Component>();
         foreach(Component component in components)
         {
-            vComponents.Add(CreateVirtualComponent(component));
+            if (types.Length == 0)
+            {
+                vComponents.Add(CreateVirtualComponent(component));
+            } else
+            {
+                if (Array.IndexOf(types, component.GetType()) > -1)
+                {
+                    vComponents.Add(CreateVirtualComponent(component));
+                }
+            }
         }
         return vComponents.ToArray();
     }
@@ -63,7 +71,8 @@ public class VCreate
 
         foreach (PropertyInfo field in type.GetProperties(bindingFlags))
         {
-            if (field.CanWrite)
+            Debug.Log(field.Name);
+            if (field.CanWrite && field.Name != "material" && field.Name != "materials")
             {
                 try
                 {

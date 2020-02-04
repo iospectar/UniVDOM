@@ -176,32 +176,43 @@ public class VDiff
 
     public static GameObjectPatch Diff(VGameObject vOldGO, VGameObject vNewGO)
     {
-        GameObjectPatch patch = (GameObject go) => null;
+        GameObjectPatch patch;
 
         // GameObject has been deleted
-        if (vNewGO != null)
+        if (vNewGO == null)
         {
             patch = (GameObject go) => {
                 GameObject.Destroy(go);
                 return null;
             };
         }
-
-        VGameObject vNotNullGO = vNewGO;
-
-        patch = (GameObject go) =>
+        // GameObject has been added
+        else if (vOldGO == null)
         {
-            if (vOldGO.name != vNotNullGO.name)
+            patch = (GameObject go) =>
             {
-                go.name = vNotNullGO.name;
-            }
+                GameObject newGo = VRender.RenderGameObject(vNewGO);
+                newGo.transform.SetParent(go.transform);
+                return newGo;
+            };
+        }
+        // GameObject has been modified
+        else
+        {
+            patch = (GameObject go) =>
+            {
+                if (vOldGO.name != vNewGO.name)
+                {
+                    go.name = vNewGO.name;
+                }
 
-            GameObjectPatch componentPatch = DiffComponents(vOldGO.components, vNotNullGO.components);
-            componentPatch(go);
-            GameObjectPatch childPatch = DiffChildren(vOldGO.children, vNotNullGO.children);
-            childPatch(go);
-            return go;
-        };
+                GameObjectPatch componentPatch = DiffComponents(vOldGO.components, vNewGO.components);
+                componentPatch(go);
+                GameObjectPatch childPatch = DiffChildren(vOldGO.children, vNewGO.children);
+                childPatch(go);
+                return go;
+            };
+        }
         return patch;
     }
 

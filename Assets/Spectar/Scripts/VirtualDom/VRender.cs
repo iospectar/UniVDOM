@@ -24,12 +24,16 @@ public class VRender
             Component component = RenderComponent(go, vComponent);
         }
 
-        foreach (VGameObject vChild in vGameObject.children)
+        // Prefabs create their own children
+        if (vGameObject.prefab == null)
         {
-            GameObject child = RenderGameObject(vChild);
-            child.transform.SetParent(go.transform);
+            foreach (VGameObject vChild in vGameObject.children)
+            {
+                GameObject child = RenderGameObject(vChild);
+                child.transform.SetParent(go.transform);
+            }
         }
-        
+
         return go;
     }
 

@@ -27,8 +27,7 @@ public class Sample : MonoBehaviour
     void Start()
     {
         go = gameObject.transform.GetChild(0).gameObject;
-        vApp = VCreate.CreateVirtualNodes(go);
-        Debug.Log(vApp);
+        vApp = VCreate.CreateVirtualNodes(go, typeof(TodoItemPresenter), typeof(TextMesh), typeof(Transform));
         //go = VRender.RenderGameObject(vApp);
         //go.transform.SetParent(transform);
 
@@ -58,9 +57,6 @@ public class Sample : MonoBehaviour
     void UpdateRender()
     {
         VGameObject newApp = Render(todos);
-        string val1 = (string) vApp.children[0].components[1].fields[0].Value;
-        string val2 = (string) newApp.children[0].components[1].fields[0].Value;
-
         GameObjectPatch patch = VDiff.Diff(vApp, newApp);
         go = patch(go);
         vApp = newApp;
@@ -72,14 +68,24 @@ public class Sample : MonoBehaviour
     {
         var newApp = vApp.Clone();
 
-        newApp
+        var todoContainer = newApp
             .Descendants()
-            .Where(go => go.name == "TodoItem")
-            .First()
-            .Components()
-            .Where(co => co.IsType<TodoItemPresenter>())
-            .First()
-            .SetValue("text", todos.Count().ToString());
+            .Where(go => go.name == "Todos")
+            .First();
+
+        VGameObject[] todoItems = todos.Select(todo =>
+            {
+                int idx = todos.IndexOf(todo);
+                VGameObject todoItem = VirtualDom.CreatePrefab("todo", todoItemPrefab,
+                    VirtualDom.List(
+                        VirtualDom.CreateComponent<Transform>(new KeyValuePair<string, object>("position", new Vector3(0, idx, 0))),
+                        VirtualDom.CreateComponent<TodoItemPresenter>(new KeyValuePair<string, object>("text", $"item {idx}"))
+                    )
+                );
+                return todoItem;
+            }).ToArray();
+
+        todoContainer.children = todoItems;
 
         return newApp;
     }
