@@ -218,9 +218,6 @@ public class VDiff
 
     public static IObservable<GameObjectPatch> DiffThreaded(VGameObject vOldGO, VGameObject vNewGO)
     {
-        return Observable.Start(() =>
-        {
-            return Diff(vOldGO, vNewGO);
-        });
+        return Observable.Start(() => Diff(vOldGO, vNewGO));
     }
 }

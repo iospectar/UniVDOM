@@ -70,15 +70,14 @@ public class Sample : MonoBehaviour
 
         var todoContainer = newApp
             .Descendants()
-            .Where(go => go.name == "Todos")
-            .First();
+            .First(go => go.name == "Todos");
 
         VGameObject[] todoItems = todos.Select(todo =>
             {
                 int idx = todos.IndexOf(todo);
                 VGameObject todoItem = VirtualDom.CreatePrefab("todo", todoItemPrefab,
                     VirtualDom.List(
-                        VirtualDom.CreateComponent<Transform>(new KeyValuePair<string, object>("position", new Vector3(0, idx, 0))),
+             VirtualDom.CreateComponent<Transform>(new KeyValuePair<string, object>("position", new Vector3(0, idx, 0))),
                         VirtualDom.CreateComponent<TodoItemPresenter>(new KeyValuePair<string, object>("text", $"item {idx}"))
                     )
                 );

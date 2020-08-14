@@ -71,7 +71,6 @@ public class VCreate
 
         foreach (PropertyInfo field in type.GetProperties(bindingFlags))
         {
-            Debug.Log(field.Name);
             if (field.CanWrite && field.Name != "material" && field.Name != "materials")
             {
                 try
