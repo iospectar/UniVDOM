@@ -88,7 +88,7 @@ public class Sample : MonoBehaviour
 
         return newApp;
     }
-
+    
 
     public void OnAddItem()
     {
