@@ -4,7 +4,7 @@ using UnityEngine;
 
 public class TodoItemPresenter : MonoBehaviour
 {
-    private string text;
+    public string text;
 
     private TextMesh textMesh;
 

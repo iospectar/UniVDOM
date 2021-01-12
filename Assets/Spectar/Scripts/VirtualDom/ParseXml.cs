@@ -5,17 +5,21 @@ using System.Linq;
 using System.Xml;
 using System.Xml.Linq;
 using Spectar.Scripts.VirtualDom;
+using Unity.Profiling;
 using UnityEngine;
 
 public static class ParseXml
 {
-    private static string ViewNameSpace = "Spectar.Scripts";
+    static ProfilerMarker perfMarker = new ProfilerMarker("VirtualDom.ParseXml");
+
     public static VGameObject Parse(string xmlText, TagMap tagMap)
     {
+        perfMarker.Begin();
         var doc = XDocument.Parse(xmlText);
         var root = doc.Root;
         var rootNode = NodeFactory(root, tagMap);
         CreateNode(rootNode, root, tagMap);
+        perfMarker.End();
         return rootNode;
     }
 
@@ -38,7 +42,15 @@ public static class ParseXml
     {
         var tagName = element.Name.LocalName;
         var t = tagMap.Get(tagName);
-        var node = VirtualDom.CreateGameObject(t, new KeyValuePair<string, object>[0]);
+        var xAttributes = element.Attributes().ToList();
+        var fields = new KeyValuePair<string, object>[xAttributes.Count];
+        var attrIdx = 0;
+        foreach (var xAttribute in xAttributes)
+        {
+            fields[attrIdx] = new KeyValuePair<string, object>(xAttribute.Name.LocalName, xAttribute.Value);
+            attrIdx++;
+        }
+        var node = VirtualDom.CreateGameObject(t, fields);
         return node;
     }
 }
