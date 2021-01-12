@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System;
 using System.Linq;
 using Spectar.Scripts;
+using Spectar.Scripts.VirtualDom;
 using UnityEngine;
 using UniRx;
 using UnityEngine.Events;
@@ -15,17 +16,22 @@ public struct TodoItem
 public class Sample : MonoBehaviour
 {
     public GameObject root;
-
+    [TextArea(10, 20)]
+    public string xmlText;
+    
     VGameObject vApp;
     GameObject go;
     int count = 0;
 
     List<TodoItem> todos = new List<TodoItem>();
-
+    TagMap tagMap = new TagMap();
 
     // Start is called before the first frame update
     void Start()
     {
+        tagMap.Add("list", typeof(ListPresenter));
+        tagMap.Add("todo", typeof(TodoItemPresenter));
+
         vApp = VirtualDom.CreateGameObject(typeof(ListPresenter));
         go = root;
     }
@@ -63,13 +69,14 @@ public class Sample : MonoBehaviour
     VGameObject Render(List<TodoItem> todos)
     {
         var newApp = vApp.Clone();
-        var list = VirtualDom.CreateGameObject(typeof(ListPresenter));
-        newApp.children = new[] {list};
-        list.children = todos.Select(todo =>
-        {
-            int idx = todos.IndexOf(todo);
-            return VirtualDom.CreateGameObject(typeof(TodoItemPresenter), new []{new KeyValuePair<string, object>("Text", $"item {idx}")});
-        }).ToArray();
+        // var list = VirtualDom.CreateGameObject(typeof(ListPresenter));
+        // newApp.children = new[] {list};
+        // list.children = todos.Select(todo =>
+        // {
+        //     int idx = todos.IndexOf(todo);
+        //     return VirtualDom.CreateGameObject(typeof(TodoItemPresenter), new []{new KeyValuePair<string, object>("Text", $"item {idx}")});
+        // }).ToArray();
+        newApp.children = new[] {ParseXml.Parse(xmlText, tagMap)};
         return newApp;
     }
     

@@ -341,7 +341,7 @@ PrefabInstance:
     - target: {fileID: 31687795193993440, guid: d1a2b539baa3b4448bb6ba06c3db1823,
         type: 3}
       propertyPath: m_RootOrder
-      value: 1
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 31687795193993440, guid: d1a2b539baa3b4448bb6ba06c3db1823,
         type: 3}
@@ -487,6 +487,9 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   root: {fileID: 1195794053}
+  xmlText: '<list>
+
+    </list>'
 --- !u!4 &1035964585
 Transform:
   m_ObjectHideFlags: 0

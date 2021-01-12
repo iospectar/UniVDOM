@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Xml;
 using NUnit.Framework;
+using Spectar.Scripts.VirtualDom;
 using UnityEngine.TestTools;
 
 namespace Tests
@@ -36,8 +37,9 @@ namespace Tests
         [Test]
         public void TestXmlToVDom()
         {
+            var tagMap = new TagMap();
             var content = RenderTodos(4);
-            var xmlString = ParseXml.Parse(content);
+            var xmlString = ParseXml.Parse(content, tagMap);
             // Use the Assert class to test conditions
         }
     }

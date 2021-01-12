@@ -9,8 +9,9 @@ public class VGameObject
     public GameObject prefab;
     public VGameObject[] children;
 
-    readonly public Type type;
-    readonly public KeyValuePair<string, object>[] fields;
+    public Type type;
+    
+    public readonly KeyValuePair<string, object>[] fields;
     
     public void SetValue(string key, object value)
     {
