@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System;
 using System.Linq;
+using Spectar.Scripts;
 using UnityEngine;
 using UniRx;
 using UnityEngine.Events;
@@ -13,8 +14,7 @@ public struct TodoItem
 
 public class Sample : MonoBehaviour
 {
-    public GameObject toolbarPrefab;
-    public GameObject todoItemPrefab;
+    public GameObject root;
 
     VGameObject vApp;
     GameObject go;
@@ -26,12 +26,8 @@ public class Sample : MonoBehaviour
     // Start is called before the first frame update
     void Start()
     {
-        go = gameObject.transform.GetChild(0).gameObject;
-        vApp = VCreate.CreateVirtualNodes(go, typeof(TodoItemPresenter), typeof(TextMesh), typeof(Transform));
-        //go = VRender.RenderGameObject(vApp);
-        //go.transform.SetParent(transform);
-
-        //InvokeRepeating("UpdateRenderThreaded", 0, 2f);
+        vApp = VirtualDom.CreateGameObject(typeof(ListPresenter));
+        go = root;
     }
 
     private void Update()
@@ -67,25 +63,13 @@ public class Sample : MonoBehaviour
     VGameObject Render(List<TodoItem> todos)
     {
         var newApp = vApp.Clone();
-
-        var todoContainer = newApp
-            .Descendants()
-            .First(go => go.name == "Todos");
-
-        VGameObject[] todoItems = todos.Select(todo =>
-            {
-                int idx = todos.IndexOf(todo);
-                VGameObject todoItem = VirtualDom.CreatePrefab("todo", todoItemPrefab,
-                    VirtualDom.List(
-             VirtualDom.CreateComponent<Transform>(new KeyValuePair<string, object>("position", new Vector3(0, idx, 0))),
-                        VirtualDom.CreateComponent<TodoItemPresenter>(new KeyValuePair<string, object>("text", $"item {idx}"))
-                    )
-                );
-                return todoItem;
-            }).ToArray();
-
-        todoContainer.children = todoItems;
-
+        var list = VirtualDom.CreateGameObject(typeof(ListPresenter));
+        newApp.children = new[] {list};
+        list.children = todos.Select(todo =>
+        {
+            int idx = todos.IndexOf(todo);
+            return VirtualDom.CreateGameObject(typeof(TodoItemPresenter), new []{new KeyValuePair<string, object>("Text", $"item {idx}")});
+        }).ToArray();
         return newApp;
     }
     

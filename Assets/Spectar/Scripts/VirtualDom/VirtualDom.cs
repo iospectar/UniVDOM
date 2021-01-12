@@ -6,12 +6,12 @@ using UnityEngine;
 
 public class VirtualDom
 {
-    public static VGameObject CreateGameObject(string name,  VComponent[] components, params VGameObject[] children)
+    public static VGameObject CreateGameObject(string name,  KeyValuePair<string, object>[] fields, params VGameObject[] children)
     {
         return new VGameObject
         (
             name,
-            components,
+            fields,
             children
         );
     }
@@ -21,48 +21,17 @@ public class VirtualDom
         return new VGameObject
         (
             name,
-            new VComponent[] { },
+            new KeyValuePair<string, object>[] { },
             children
         );
     }
 
-    public static VGameObject CreateGameObject(string name, IEnumerable<VGameObject> children)
-    {
-        return new VGameObject(
-            name,
-            new VComponent[0],
-            children.ToArray()
-        );
-    }
-
-    public static VGameObject CreatePrefab(string name, GameObject prefab)
+    public static VGameObject CreateGameObject(Type type, KeyValuePair<string, object>[] fields)
     {
         return new VGameObject
         (
-            name,
-            prefab,
-            new VComponent[0],
-            new VGameObject[0]
-        );
-    }
-
-    public static VGameObject CreatePrefab(string name, GameObject prefab, VComponent[] components)
-    {
-        return new VGameObject
-        (
-            name,
-            prefab,
-            components,
-            new VGameObject[0]
-        );
-    }
-
-    public static VGameObject CreateGameObject(string name, VComponent[] components)
-    {
-        return new VGameObject
-        (
-            name,
-            components,
+            type,
+            fields,
             new VGameObject[0]
         );
     }
@@ -72,37 +41,18 @@ public class VirtualDom
         return new VGameObject
         (
             name,
-            new VComponent[0],
+            new KeyValuePair<string, object>[0],
             new VGameObject[0]
         );
     }
-
-
-    public static VComponent CreateComponent<T>(params KeyValuePair<string, object>[] fields)
+    
+    public static VGameObject CreateGameObject(Type type)
     {
-        return new VComponent
-        (
-            typeof(T),
-            fields
-        );
-    }
-
-    public static VComponent CreateComponent(Type type, params KeyValuePair<string, object>[] fields)
-    {
-        return new VComponent
+        return new VGameObject
         (
             type,
-            fields
-        );
-    }
-
-    public static VComponent CreateComponent(string type, params KeyValuePair<string, object>[] fields)
-    {
-        Type t = Type.GetType(type);
-        return new VComponent
-        (
-            t,
-            fields
+            new KeyValuePair<string, object>[0],
+            new VGameObject[0]
         );
     }
 

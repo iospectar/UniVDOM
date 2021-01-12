@@ -12,17 +12,14 @@ public class VRender
         GameObject go;
         if (vGameObject.prefab == null)
         {
-            go = new GameObject(vGameObject.name);
+            go = new GameObject(vGameObject.type.ToString());
         } else
         {
             go = GameObject.Instantiate(vGameObject.prefab);
-            go.name = vGameObject.name;
+            go.name = vGameObject.type.ToString();
         }
 
-        foreach (VComponent vComponent in vGameObject.components)
-        {
-            Component component = RenderComponent(go, vComponent);
-        }
+        RenderComponent(go, vGameObject);
 
         // Prefabs create their own children
         if (vGameObject.prefab == null)
@@ -37,19 +34,19 @@ public class VRender
         return go;
     }
 
-    public static Component RenderComponent(GameObject go, VComponent vComponent)
+    public static GameObject RenderComponent(GameObject go, VGameObject vGameObject)
     {
-        Component component = go.GetComponent(vComponent.type);
+        Component component = go.GetComponent(vGameObject.type);
         if (component == null)
         {
-            component = go.AddComponent(vComponent.type);
+            component = go.AddComponent(vGameObject.type);
         }
 
         
-        return RenderFields(component, vComponent);
+        return RenderFields(go, vGameObject);
     }
 
-    public static Component RenderFields(Component component, VComponent vComponent)
+    public static GameObject RenderFields(GameObject go, VGameObject vComponent)
     {
         foreach (KeyValuePair<string, object> field in vComponent.fields)
         {
@@ -57,17 +54,18 @@ public class VRender
             {
                 Debug.Log("Material");
             }
-            SetComponentField(vComponent, component, field);
+            SetField(vComponent, go, field);
         }
-        return component;
+        return go;
     }
 
-    public static void SetComponentField(VComponent vComponent, Component component, KeyValuePair<string, object> field)
+    public static void SetField(VGameObject vGameObject, GameObject go, KeyValuePair<string, object> field)
     {
-        FieldInfo fieldInfo = vComponent.type.GetField(field.Key);
+        FieldInfo fieldInfo = vGameObject.type.GetField(field.Key);
+        Component component = go.GetComponent(vGameObject.type);
         if (fieldInfo == null)
         {
-            PropertyInfo myPropInfo = vComponent.type.GetProperty(field.Key);
+            PropertyInfo myPropInfo = vGameObject.type.GetProperty(field.Key);
             myPropInfo.SetValue(component, field.Value);
         } else
         {

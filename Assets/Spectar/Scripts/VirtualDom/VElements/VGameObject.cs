@@ -6,26 +6,37 @@ using System;
 
 public class VGameObject
 {
-    public string name;
     public GameObject prefab;
-    public VComponent[] components;
     public VGameObject[] children;
 
-    public VGameObject(string name, GameObject prefab, VComponent[] components, VGameObject[] children)
+    readonly public Type type;
+    readonly public KeyValuePair<string, object>[] fields;
+    
+    public void SetValue(string key, object value)
     {
-        this.name = name;
-        this.prefab = prefab;
-        this.components = components;
-        this.children = children;
+        int idx = Array.FindIndex(fields, kv => kv.Key == key);
+        fields[idx] = new KeyValuePair<string, object>(key, value);
+    }
+    
+    public bool IsType<T>()
+    {
+        return type == typeof(T);
     }
 
-    public VGameObject(string name, VComponent[] components, VGameObject[] children)
+    public VGameObject(string typeName, KeyValuePair<string, object>[] fields, VGameObject[] children)
     {
-        this.name = name;
-        this.components = components;
+        this.type = Type.GetType(typeName);
         this.children = children;
-        this.prefab = null;
+        this.fields = fields;
     }
+    
+    public VGameObject(Type type, KeyValuePair<string, object>[] fields, VGameObject[] children)
+    {
+        this.type = type;
+        this.children = children;
+        this.fields = fields;
+    }
+
 
     public void Replace(VGameObject current, VGameObject replace)
     {
@@ -46,25 +57,17 @@ public class VGameObject
         }
     }
 
-    public IEnumerable<VComponent> Components()
-    {
-        foreach (VComponent child in this.components)
-        {
-            yield return child;
-        }
-    }
 
     internal VGameObject Clone()
     {
-        var name = this.name;
-        var components = (VComponent[]) this.components
-            .Select(component => component.Clone())
+        var fields = this.fields
+            .Select(field => new KeyValuePair<string, object>(field.Key, field.Value))
             .ToArray();
 
         var children = (VGameObject[]) this.children
             .Select(child => child.Clone())
             .ToArray();
-        VGameObject clone = new VGameObject(name, components, children);
+        VGameObject clone = new VGameObject(type, fields, children);
   
         return clone;
     }

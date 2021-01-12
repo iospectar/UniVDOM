@@ -4,19 +4,28 @@ using UnityEngine;
 
 public class TodoItemPresenter : MonoBehaviour
 {
-    public string text;
+    private string text;
 
     private TextMesh textMesh;
+
+    public string Text
+    {
+        get => text;
+        set
+        {
+            text = value;
+        }
+    }
 
     // Start is called before the first frame update
     void Start()
     {
-        textMesh = GetComponentInChildren<TextMesh>();
+        // textMesh = GetComponentInChildren<TextMesh>();
     }
 
     // Update is called once per frame
     void Update()
     {
-        textMesh.text = text;
+        // textMesh.text = text;
     }
 }

@@ -6,19 +6,19 @@ using UniRx;
 
 public delegate GameObject GameObjectPatch(GameObject go);
 public delegate Component ComponentPatch(GameObject co);
-public delegate void FieldsPatch(Component co);
+public delegate void FieldsPatch(GameObject co);
 
 public class VDiff
 {
 
-    private static FieldsPatch DiffFields(VComponent vOldComponent, VComponent vNewComponent)
+    private static FieldsPatch DiffFields(VGameObject vOldGameObject, VGameObject vNewGameObject)
     {
-        FieldsPatch patch = (Component co) =>
+        FieldsPatch patch = (GameObject go) =>
         {
-            for (int i = 0; i < vOldComponent.fields.Length; i++)
+            for (int i = 0; i < vOldGameObject.fields.Length; i++)
             {
-                KeyValuePair<string, object> field = vNewComponent.fields[i];
-                object currentValue = vOldComponent.fields[i].Value;
+                KeyValuePair<string, object> field = vNewGameObject.fields[i];
+                object currentValue = vOldGameObject.fields[i].Value;
                 bool unchanged;
                 if (currentValue == null)
                 {
@@ -30,7 +30,7 @@ public class VDiff
 
                 if (!unchanged)
                 {
-                    VRender.SetComponentField(vNewComponent, co, field);
+                    VRender.SetField(vNewGameObject, go, field);
                 }
             }
         };
@@ -83,97 +83,7 @@ public class VDiff
 
         return completePatch;
     }
-
-    private static GameObjectPatch DiffComponents(VComponent[] vOldComponents, VComponent[] vNewComponents)
-    {
-        GameObjectPatch patch = (GameObject go) =>
-        {
-            int minLength = Mathf.Min(vOldComponents.Length, vNewComponents.Length);
-
-            for (int i = 0; i < minLength; i++)
-            {
-                ComponentPatch componentPatch = DiffComponent(vOldComponents[i], vNewComponents[i]);
-                componentPatch(go);
-            }
-
-            // patch is complete
-            if (vOldComponents.Length == vNewComponents.Length)
-            {
-                return go;
-
-                // New components have beend added
-            }
-            else if (vOldComponents.Length < vNewComponents.Length)
-            {
-                for (int i = minLength - 1; i < vNewComponents.Length; i++)
-                {
-                    ComponentPatch componentPatch = DiffComponent(null, vNewComponents[i]);
-                    componentPatch(go);
-                }
-
-            // Components have been deleted
-            }
-            else if (vOldComponents.Length > vNewComponents.Length)
-            {
-                for (int i = minLength - 1; i < vOldComponents.Length; i++)
-                {
-                    ComponentPatch componentPatch = DiffComponent(vOldComponents[i], null);
-                    componentPatch(go);
-                }
-            }
-            return go;
-        };
-
-        return patch;
-    }
-
-    private static ComponentPatch DiffComponent(VComponent vOldComponent, VComponent vNewComponent)
-    {
-        ComponentPatch patch = (GameObject go) =>
-        {
-            FieldsPatch fieldPatch = DiffFields(vOldComponent, vNewComponent);
-            Component co = go.GetComponent(vOldComponent.type);
-            fieldPatch(co);
-            return co;
-        };
-
-        // If there is no new component then we're gonna delete it
-        if (vNewComponent != null && vOldComponent != null)
-        {
-            patch = (GameObject go) =>
-            {
-                Component co = go.GetComponent(vOldComponent.type);
-                GameObject.Destroy(co);
-                return null;
-            };
-        }
-
-        // If there's a new one, but no old one, we're adding a new one
-        VComponent vNotNullNewCO = vNewComponent;
-        if (vOldComponent != null)
-        {
-            patch = (GameObject go) =>
-            {
-                return VRender.RenderComponent(go, vNotNullNewCO);
-            };
-        }
-
-        // If the components of different types, then we're gonna replace
-        // the old with the new
-        VComponent vNotNullOldCO = vOldComponent;
-        if (!vNotNullOldCO.type.Equals(vNotNullNewCO.type))
-        {
-            patch = (GameObject go) =>
-            {
-                Component co = go.GetComponent(vNotNullOldCO.type);
-                GameObject.Destroy(co);
-                return VRender.RenderComponent(go, vNotNullNewCO);
-            };
-        }
-
-        return patch;
-    }
-
+    
     public static GameObjectPatch Diff(VGameObject vOldGO, VGameObject vNewGO)
     {
         GameObjectPatch patch;
@@ -201,12 +111,14 @@ public class VDiff
         {
             patch = (GameObject go) =>
             {
-                if (vOldGO.name != vNewGO.name)
+                if (vOldGO.type != vNewGO.type)
                 {
-                    go.name = vNewGO.name;
+                    var oldComponent = go.GetComponent(vOldGO.type);
+                    GameObject.DestroyImmediate(oldComponent);
+                    go.AddComponent(vNewGO.type);
                 }
 
-                GameObjectPatch componentPatch = DiffComponents(vOldGO.components, vNewGO.components);
+                var componentPatch = DiffFields(vOldGO, vNewGO);
                 componentPatch(go);
                 GameObjectPatch childPatch = DiffChildren(vOldGO.children, vNewGO.children);
                 childPatch(go);
