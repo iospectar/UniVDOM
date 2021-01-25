@@ -15,7 +15,7 @@ public class VDiff
     {
         FieldsPatch patch = (GameObject go) =>
         {
-            for (int i = 0; i < vOldGameObject.fields.Length; i++)
+            for (var i = 0; i < vOldGameObject.fields.Length; i++)
             {
                 KeyValuePair<string, object> field = vNewGameObject.fields[i];
                 object currentValue = vOldGameObject.fields[i].Value;
@@ -30,6 +30,17 @@ public class VDiff
 
                 if (!unchanged)
                 {
+                    VRender.SetField(vNewGameObject, go, field);
+                }
+            }
+
+            if (vNewGameObject.fields.Length > vOldGameObject.fields.Length)
+            {
+                var newFields = vNewGameObject.fields.Length - vOldGameObject.fields.Length - 1;
+                for (var i = newFields; i < vNewGameObject.fields.Length; i++)
+                {
+                    bool unchanged;
+                    KeyValuePair<string, object> field = vNewGameObject.fields[i];
                     VRender.SetField(vNewGameObject, go, field);
                 }
             }
