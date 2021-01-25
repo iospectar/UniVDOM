@@ -1,0 +1,8 @@
+﻿{
+  "name": "io.spectar.UniVDOM",
+  "version": "0.0.1",
+  "displayName": "UniVDOM",
+  "description": "Virtual DOM for Unity",
+  "dependencies": {
+  }
+}
